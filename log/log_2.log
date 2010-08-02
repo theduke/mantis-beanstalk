@@ -1,0 +1,11 @@
+{"message": "[#58 resolution=fixed status=resolved]", "revision":"2", "author_email": "christoph.herzog@crevo.net"}
+
+
+Property does not exist
+
+#0 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(98): Instruction->getAsObjectRef('severity')
+#1 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(74): MantisBeanstalk->processInstruction(Object(Instruction), Array)
+#2 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(65): MantisBeanstalk->processHook(Array)
+#3 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(41): MantisBeanstalk->execute()
+#4 /home/theduke/projects/mantis-beanstalk/bin/webhook.php(18): MantisBeanstalk->run()
+#5 {main}

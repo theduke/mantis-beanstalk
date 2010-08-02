@@ -1,0 +1,15 @@
+{"message": "[#58 resolution=fixed status=resolved]", "revision":"2"}
+
+
+Invalid parameter types: (string, string, string)
+
+#0 /home/theduke/projects/mantis-beanstalk/lib/vendor/mantisconnect-php/lib/MantisConnect.php(1167): MantisConnect->_checkArguments(Array, Array)
+#1 [internal function]: MantisConnect->mc_issue_get('christoph.herzo...', 'pcadmin3', '58')
+#2 /home/theduke/projects/mantis-beanstalk/lib/vendor/mantisconnect-php/lib/MantisConnector.php(34): call_user_func_array(Array, Array)
+#3 [internal function]: MantisConnector->__call('mc_issue_get', Array)
+#4 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(81): MantisConnector->mc_issue_get('58')
+#5 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(74): MantisBeanstalk->processInstruction(Object(Instruction), Array)
+#6 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(65): MantisBeanstalk->processHook(Array)
+#7 /home/theduke/projects/mantis-beanstalk/lib/MantisBeanstalk.php(41): MantisBeanstalk->execute()
+#8 /home/theduke/projects/mantis-beanstalk/bin/webhook.php(18): MantisBeanstalk->run()
+#9 {main}

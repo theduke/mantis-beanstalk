@@ -1,0 +1,3 @@
+[submodule "lib/vendor/mantisconnect-php"]
+	path = lib/vendor/mantisconnect-php
+	url = git://github.com/theduk3/mantisconnect-php.git
