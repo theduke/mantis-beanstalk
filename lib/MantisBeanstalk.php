@@ -121,8 +121,11 @@ class MantisBeanstalk
 		{
 			$noteText = $instruction->note;
 			
-			$noteText .= PHP_EOL . PHP_EOL . str_repeat('-', 20) . 
-			  PHP_EOL .  'revision: ' . $data['revision'];
+			if (isset($data['revision']))
+			{
+				$noteText .= PHP_EOL . PHP_EOL . str_repeat('-', 20) . 
+				  PHP_EOL .  'revision: ' . $data['revision'];
+			}
 			
 			$note = new IssueNoteData();
 			$note->text = $noteText;
