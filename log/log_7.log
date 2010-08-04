@@ -1,3 +1,0 @@
-{"author":"theduke","author_full_name":"Christoph Herzog","author_email":"christoph.herzog@crevo.net","changed_dirs":[],"changed_files":[["trunk/apps/frontend/modules/common/actions/actions.class.php","edit"],["trunk/apps/frontend/modules/wohnbase/actions/actions.class.php","edit"],["trunk/data/fixtures/pagecms/pagecms.yml","edit"]],"changeset_url":"http://crevo.beanstalkapp.com/wb-trondheimgasse/changesets/283","message":"New action wohnbase/moderatorimage to show moderator image.\n\nFixed image path in pagecms.yml to point at wohnbase/moderatorimage.\n\nReload of pagecms.yml  required!\n\nTodo for Stephan: upload right moderator image online\n[#31 assign:stephan.herzog status:feedback]\n","time":"2010/08/02 15:17:07 +0200","revision":283}
-
-

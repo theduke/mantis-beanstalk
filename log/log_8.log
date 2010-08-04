@@ -1,3 +1,0 @@
-{"changed_dirs":[],"changed_files":[["trunk/apps/frontend/modules/userverwaltung/actions/actions.class.php","edit"],["trunk/apps/frontend/modules/userverwaltung/templates/_pager.php","edit"],["trunk/lib/model/doctrine/sfDoctrineGuardPlugin/sfGuardUser.class.php","edit"]],"author":"theduke","changeset_url":"http://crevo.beanstalkapp.com/wb-trondheimgasse/changesets/284","revision":284,"message":"Fixed faulty setting of base url in userverwaltung.\n[#64 status=resolved resolution=fixed]\n","time":"2010/08/02 15:32:45 +0200","author_email":"christoph.herzog@crevo.net","author_full_name":"Christoph Herzog"}
-
-
