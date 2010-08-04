@@ -92,7 +92,7 @@ class InstructionParser
 		{
 			$char = $arr[$i];
 			
-			if ($char === '=')
+			if ($char === '=' || $char === ':')
 			{
 				$parts[] = $tmp;
 				$tmp = '';
