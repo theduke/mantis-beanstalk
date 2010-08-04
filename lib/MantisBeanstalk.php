@@ -14,6 +14,8 @@ class MantisBeanstalk
 	
 	protected $logContent;
 	
+	protected $logPath;
+	
 	/**
 	 * the mantis project id
 	 * @var string
@@ -29,10 +31,6 @@ class MantisBeanstalk
 	
 	public function run()
 	{
-		$path = realpath(dirname(__FILE__) . '/../log');
-		$i = count(scandir($path)) -2;
-		$filename = $path . '/log_' . $i . '.log';
-		
 		$logContent = '';
 		
 		if (isset($_REQUEST['commit'])) $logContent .= $_REQUEST['commit'] . PHP_EOL . PHP_EOL . PHP_EOL;
@@ -44,10 +42,33 @@ class MantisBeanstalk
 			$logContent .= $e->getMessage() . PHP_EOL . PHP_EOL . $e->getTraceAsString();
 		}
 		
-		file_put_contents($filename, $logContent);
+		if ($this->logPath)	$this->doLog($logContent);
 		
-		// rethrow exception
+		// rethrow exception for testing
 		if ($e) throw $e;
+	}
+	
+	protected function doLog($content)
+	{
+		if (!is_dir($this->logPath) || ! is_writable($this->logPath))
+		{
+			throw new Exception('Specified log path is not writable or does not exist.');
+		}
+		
+		if (isset($this->data['revision']))
+		{
+			$filename = 'revision' . $this->data['revision'] . '.log';
+		} else {
+			$i = count(scandir($this->logPath)) -1;
+			$filename = "log_{$i}.log";
+		}
+		
+		$path = $this->getLogPath() .  $filename;
+    
+    if (!file_put_contents($path, $content))
+    {
+    	throw new Exception('Could not write log file.');
+    }
 	}
 	
 	public function execute()
@@ -65,6 +86,8 @@ class MantisBeanstalk
 		{
 			throw new Exception('Could not verify json data.');
 		}
+		
+		$this->data = $data;
 		
 		$this->processHook($data);
 	}
@@ -135,7 +158,7 @@ class MantisBeanstalk
 		}
 		
 		$this->mantisClient->mc_issue_update($instruction->issueId, $issue);
-	} 
+	}
 	
 	protected function verifyData(array $data)
 	{
@@ -178,4 +201,23 @@ class MantisBeanstalk
 	{
 		return $this->projectId;
 	}
+	
+  /**
+   * 
+   * @param string $logPath
+   */
+  public function setLogPath($logPath)
+  {
+    $this->logPath = $logPath;
+    return $this;
+  }
+  
+  /**
+   * @return MantisConnect $client
+   */
+  public function getLogPath()
+  {
+  	if (substr($this->logPath, -1) !== '/') $this->logPath .= '/';
+    return $this->logPath;
+  }
 }
