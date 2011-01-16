@@ -46,7 +46,7 @@ class MantisBeanstalk
 	{
 		$logContent = '';
 		
-		if (isset($_REQUEST['commit'])) $logContent .= $_REQUEST['commit'] . PHP_EOL . PHP_EOL;
+		$logContent .= print_r($_REQUEST, true) . PHP_EOL . PHP_EOL;
 		
 		$e = null;
 		try {
