@@ -58,12 +58,16 @@ class MantisBeanstalk
 		if ($this->logPath)	$this->doLog($logContent);
 		
 		// rethrow exception for testing
-		if ($e) throw $e;
+		if ($e)
+		{
+			var_dump($logContent);
+			throw $e;
+		}
 	}
 	
 	protected function doLog($content)
 	{
-		if (!is_dir($this->logPath) || ! is_writable($this->logPath))
+		if (!is_dir($this->logPath) || !is_writable($this->logPath))
 		{
 			throw new Exception('Specified log path is not writable or does not exist.');
 		}
@@ -77,8 +81,10 @@ class MantisBeanstalk
 		}
 		
 		$path = $this->getLogPath() .  $filename;
-    
-	    if (!file_put_contents($path, $content))
+		
+    	$flag = file_put_contents($path, $content);
+		
+	    if ($flag === false)
 	    {
 	    	throw new Exception('Could not write log file.');
 	    }
@@ -101,7 +107,7 @@ class MantisBeanstalk
 		$data = json_decode($data);
 		$data = get_object_vars($data);
 		
-		if (!$this->verifyData($data))
+		if (!$data || !$this->verifyData($data))
 		{
 			throw new Exception('Could not verify json data.');
 		}
@@ -116,6 +122,8 @@ class MantisBeanstalk
 		
 		foreach ($data['commits'] as $commit)
 		{
+			if (is_object($commit)) $commit = get_object_vars($commit);
+			
 			$this->processHook($commit);
 		}
 	}
@@ -202,8 +210,8 @@ class MantisBeanstalk
 	{
 		if ($this->dataType === self::TYPE_GIT)
 		{
-			$email = $commit['author']['email'];
-			$name = $commit['author']['name'];
+			$email = $commit['author']->email;
+			$name = $commit['author']->name;
 		} else if ($this->dataType === self::TYPE_SVN) {
 			$email = $commit['author_email'];
 			$name = $commit['author'];
