@@ -104,6 +104,9 @@ class MantisBeanstalk
 			throw new Exception('Could not find Beanstalk data in POST.');
 		}
 		
+		// remove stupid escapes from data
+		$data = str_replace('\"', '"', $data);
+		
 		$data = json_decode($data);
 		$data = get_object_vars($data);
 		
