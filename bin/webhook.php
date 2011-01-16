@@ -3,8 +3,7 @@
 require '../lib/MantisBeanstalk.php';
 require '../lib/vendor/mantisconnect-php/lib/MantisConnector.php';
 
-// insert your mantis project id as the first argument!
-$mantisBeanstalk = new MantisBeanstalk(2);
+$mantisBeanstalk = new MantisBeanstalk();
 
 /**
  * here you specify the basic settings for your mantis environment
@@ -15,7 +14,7 @@ $mantisBeanstalk = new MantisBeanstalk(2);
  *  second and third are your mantis username and password
  *  
  *  you should create a new mantis user especially for beanstalk
- *  give it all appropriate rights for the relevant project, and pick a good
+ *  give it all appropriate rights for the relevant project(s), and pick a good
  *  password
  */
 $connector = new MantisConnector(

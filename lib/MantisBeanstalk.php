@@ -10,7 +10,22 @@ class MantisBeanstalk
 	/** @var InstructionParser */
 	protected $parser;
 	
+	/**
+	 * simple assoc array that maps project names from beanstalk to mantis projectIds
+	 * 
+	 * @var array ('projectname' => 14) 
+	 */
+	protected $projectMapping;
+	
 	protected $data;
+	
+	/**
+	 * @var string see TYPE_ constants
+	 */
+	protected $dataType;
+	
+	const TYPE_GIT = 'git';
+	const TYPE_SVN = 'svn';
 	
 	protected $logContent;
 	
@@ -22,10 +37,8 @@ class MantisBeanstalk
 	 */
 	protected $projectId;
 	
-	public function __construct($projectId)
+	public function __construct()
 	{
-		$this->projectId = $projectId;
-		
 		$this->parser = new InstructionParser();
 	}
 	
@@ -33,7 +46,7 @@ class MantisBeanstalk
 	{
 		$logContent = '';
 		
-		if (isset($_REQUEST['commit'])) $logContent .= $_REQUEST['commit'] . PHP_EOL . PHP_EOL . PHP_EOL;
+		if (isset($_REQUEST['commit'])) $logContent .= $_REQUEST['commit'] . PHP_EOL . PHP_EOL;
 		
 		$e = null;
 		try {
@@ -65,20 +78,26 @@ class MantisBeanstalk
 		
 		$path = $this->getLogPath() .  $filename;
     
-    if (!file_put_contents($path, $content))
-    {
-    	throw new Exception('Could not write log file.');
-    }
+	    if (!file_put_contents($path, $content))
+	    {
+	    	throw new Exception('Could not write log file.');
+	    }
 	}
 	
 	public function execute()
 	{
-		if (!isset($_REQUEST['commit']))
+		if (isset($_REQUEST['commit']))
 		{
-			throw new Exception('Could not find commit data in POST.');
+			$this->dataType = self::TYPE_SVN;
+			$data = $_REQUEST['commit'];
+		} else if (isset($_REQUEST['payload']))
+		{
+			$this->dataType = self::TYPE_GIT;
+			$data = $_REQUEST['payload'];
+		} else {
+			throw new Exception('Could not find Beanstalk data in POST.');
 		}
 		
-		$data = $_REQUEST['commit'];
 		$data = json_decode($data);
 		$data = get_object_vars($data);
 		
@@ -89,7 +108,16 @@ class MantisBeanstalk
 		
 		$this->data = $data;
 		
-		$this->processHook($data);
+		if ($this->dataType === self::TYPE_SVN)
+		{
+			// for svn , wrap data in another array for foreach
+			$data = array('commits' => array($data));
+		}
+		
+		foreach ($data['commits'] as $commit)
+		{
+			$this->processHook($commit);
+		}
 	}
 	
 	public function processHook(array $data)
@@ -109,9 +137,17 @@ class MantisBeanstalk
 		
 		if (!$issue) return false;
 		
-		//$issue = new IssueData();
+		$projectId = $issue->project->id;
 		
-		$user = $this->mantisClient->getUserByEmail($this->projectId, $data['author_email']);
+		if (!$this->projectId && $projectId)
+		{
+			$this->projectId = $projectId;
+		} else {
+			throw new Exception('Could not determine project ID!');
+		}
+		
+		$user = $this->determineUser($data); 
+		
 		if (!$user) throw new Exception('User could not be found.');
 		
 		if ($assignTo = $instruction->assignTo)
@@ -144,10 +180,12 @@ class MantisBeanstalk
 		{
 			$noteText = $instruction->note;
 			
-			if (isset($data['revision']))
+			$revision = $this->dataType === self::TYPE_GIT ? $data['id'] : $data['revision'];
+			
+			if ($revision)
 			{
 				$noteText .= PHP_EOL . PHP_EOL . str_repeat('-', 20) . 
-				  PHP_EOL .  'revision: ' . $data['revision'];
+				  PHP_EOL .  'revision: ' . $revision;
 			}
 			
 			$note = new IssueNoteData();
@@ -160,11 +198,33 @@ class MantisBeanstalk
 		$this->mantisClient->mc_issue_update($instruction->issueId, $issue);
 	}
 	
+	protected function determineUser($commit)
+	{
+		if ($this->dataType === self::TYPE_GIT)
+		{
+			$email = $commit['author']['email'];
+			$name = $commit['author']['name'];
+		} else if ($this->dataType === self::TYPE_SVN) {
+			$email = $commit['author_email'];
+			$name = $commit['author'];
+		}
+		
+		$user = $this->mantisClient->getUserByEmail($this->projectId, $email);
+		if (!$user) $user = $this->mantisClient->getUserBy('name', $this->projectId, $name);
+		
+		return $user;
+	}
+	
 	protected function verifyData(array $data)
 	{
 		$flag = true;
 		
-		if (!isset($data['message'])) $flag = false;
+		if ($this->dataType === self::TYPE_GIT) 
+		{
+			if (!isset($data['commits']) || empty($data['commits'])) $flag = false;
+		} else if ($this->dataType === self::TYPE_SVN) {
+			if (!isset($data['message'])) $flag = false;
+		}
 		
 		return $flag;
 	}
@@ -219,5 +279,10 @@ class MantisBeanstalk
   {
   	if (substr($this->logPath, -1) !== '/') $this->logPath .= '/';
     return $this->logPath;
+  }
+  
+  public function setProjectMapping(array $map)
+  {
+  	$this->projectMapping = $map;
   }
 }
